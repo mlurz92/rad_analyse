@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>RAD Analyse Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Schriftarten und Stylesheets -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Favicon (optional) -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <h1>RAD Analyse Tool</h1>
+        <nav>
+            <ul>
+                <li><a href="#upload" id="toggle-upload">Datei hochladen</a></li>
+                <li><a href="#filter">Filter</a></li>
+                <li><a href="#statistik">Statistik</a></li>
+                <li><a href="#about">Über</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Datei hochladen Abschnitt (initial versteckt) -->
+        <section id="upload" class="hidden">
+            <h2>JSON-Datei hochladen</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="jsonFile">Wählen Sie eine JSON-Datei:</label>
+                    <input type="file" id="jsonFile" name="jsonFile" accept=".json" required>
+                </div>
+                <button type="submit" id="upload-btn">Hochladen</button>
+            </form>
+            <div id="upload-result" aria-live="polite"></div>
+        </section>
+
+        <!-- Filter Abschnitt -->
+        <section id="filter">
+            <h2>Daten filtern</h2>
+            <form id="filter-form">
+                <div class="filter-group">
+                    <label for="Modalitaet-input">Modalität:</label>
+                    <input type="text" id="Modalitaet-input" name="Modalitaet" placeholder="Suchbegriff">
+                    <select id="Modalitaet-select" name="Modalitaet" multiple></select>
+                </div>
+                <div class="filter-group">
+                    <label for="Studiendatum-input">Studiendatum:</label>
+                    <input type="text" id="Studiendatum-input" name="Studiendatum" placeholder="Suchbegriff">
+                    <select id="Studiendatum-select" name="Studiendatum" multiple></select>
+                </div>
+                <div class="filter-group">
+                    <label for="AnfragendeAbteilung-input">Anfragende Abteilung:</label>
+                    <input type="text" id="AnfragendeAbteilung-input" name="AnfragendeAbteilung" placeholder="Suchbegriff">
+                    <select id="AnfragendeAbteilung-select" name="AnfragendeAbteilung" multiple></select>
+                </div>
+                <div class="filter-group">
+                    <label for="AnfragenderArzt-input">Anfragender Arzt:</label>
+                    <input type="text" id="AnfragenderArzt-input" name="AnfragenderArzt" placeholder="Suchbegriff">
+                    <select id="AnfragenderArzt-select" name="AnfragenderArzt" multiple></select>
+                </div>
+                <div class="filter-group">
+                    <label for="Diagnose-input">Diagnose:</label>
+                    <input type="text" id="Diagnose-input" name="Diagnose" placeholder="Suchbegriff">
+                    <select id="Diagnose-select" name="Diagnose" multiple></select>
+                </div>
+                <div class="filter-group">
+                    <label for="Untersuchungsstatus-input">Untersuchungsstatus:</label>
+                    <input type="text" id="Untersuchungsstatus-input" name="Untersuchungsstatus" placeholder="Suchbegriff">
+                    <select id="Untersuchungsstatus-select" name="Untersuchungsstatus" multiple></select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" id="filter-btn">Filter anwenden</button>
+                    <button type="button" id="reset-filter-btn">Filter zurücksetzen</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Statistik Abschnitt -->
+        <section id="statistik">
+            <h2>Statistik</h2>
+            <div id="statistik-container">
+                <!-- Dynamisch generierte Statistiken werden hier angezeigt -->
+                <div class="statistik-item loading" id="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Statistiken werden geladen...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Über Abschnitt -->
+        <section id="about">
+            <h2>Über RAD Analyse Tool</h2>
+            <p>Das RAD Analyse Tool ist ein professionelles Werkzeug zur Analyse radiologischer Untersuchungsdaten. Es ermöglicht das Hochladen von JSON-Dateien, das Filtern der Daten nach verschiedenen Kriterien und die Anzeige umfassender Statistiken. Das System läuft lokal auf einem Raspberry Pi 4 und bietet eine moderne, responsive Benutzeroberfläche mit dunklen Farbtönen und sanften Glüheffekten.</p>
+            <p>Entwickelt von mlurz, bietet das Tool eine einfache Handhabung und eine effiziente Datenverarbeitung, um Ihre radiologischen Daten optimal auszuwerten.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 RAD Analyse Tool</p>
+    </footer>
+
+    <!-- Skripte -->
+    <script src="script.js"></script>
+</body>
+</html>

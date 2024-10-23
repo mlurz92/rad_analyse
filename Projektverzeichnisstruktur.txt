@@ -1,0 +1,29 @@
+rad_analyse/
+├── public/
+│   ├── index.html
+│   ├── styles.css
+│   ├── script.js
+│   └── favicon.ico
+├── backend/
+│   ├── controllers/
+│   │   ├── uploadController.js
+│   │   └── filterController.js
+│   ├── middleware/
+│   │   └── uploadMiddleware.js
+│   ├── models/
+│   │   └── db.js
+│   ├── routes/
+│   │   ├── uploadRoutes.js
+│   │   └── filterRoutes.js
+│   ├── server.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── .gitignore
+│   ├── .env
+│   ├── start_server.sh
+│   ├── update_app.sh
+│   └── ...
+├── node_modules/  (wird durch npm install generiert)
+├── rad_analyse.db  (wird automatisch erstellt)
+├── LICENSE
+└── README.md
