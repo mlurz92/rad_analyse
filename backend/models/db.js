@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const dbPath = path.resolve(__dirname, '..', process.env.DATABASE_URL);
+const dbPath = path.resolve(__dirname, '..', process.env.DATABASE_URL || 'rad_analyse.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Fehler beim Verbinden zur Datenbank:', err.message);
@@ -13,23 +13,23 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
-// Erstellung der investigations-Tabelle, falls sie noch nicht existiert
+// Erstellung der investigations-Tabelle mit korrekten Feldnamen
 const createTableQuery = `
     CREATE TABLE IF NOT EXISTS investigations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        Modalitaet TEXT,
+        Modalität TEXT,
         Studiendatum TEXT,
         Studienbeschreibung TEXT,
-        AnfragendeAbteilung TEXT,
-        AnfragenderArzt TEXT,
-        BefundVerfasser TEXT,
-        Diagnose TEXT,
-        Untersuchungsstatus TEXT,
-        Institution TEXT,
         Anfragename TEXT,
+        Institution TEXT,
+        "Anfragende Abteilung" TEXT,
+        "Anfragender Arzt" TEXT,
+        Überweiser TEXT,
+        Berfundverfasser TEXT,
         Patientengeschlecht TEXT,
         Patientenalter TEXT,
-        Überweiser TEXT
+        Diagnose TEXT,
+        Untersuchungsstatus TEXT
     )
 `;
 
