@@ -12,56 +12,23 @@ const app = express();
 
 // Sicherheitsmiddleware
 app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-            "script-src": ["'self'", "'unsafe-inline'"],
-            "style-src": ["'self'", "'unsafe-inline'"],
-        },
-    },
+    contentSecurityPolicy: false
 }));
 
 // CORS konfigurieren
-app.use(cors({
-    origin: ['https://raspberrypi.hyg6zkbn2mykr1go.myfritz.net'],
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type']
-}));
+app.use(cors());
 
-// Middleware zum Parsen von JSON-Daten
+// JSON-Parser
 app.use(express.json());
 
-// Statische Dateien servieren
-app.use('/rad_analyse', express.static(path.join(__dirname, '../public')));
-
 // API-Routen
-app.use('/rad_analyse', uploadRoutes);
-app.use('/rad_analyse', filterRoutes);
-
-// Root-Route für /rad_analyse
-app.get('/rad_analyse', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// Catch-all Route für /rad_analyse/*
-app.get('/rad_analyse/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// Root-Route Umleitung
-app.get('/', (req, res) => {
-    res.redirect('/rad_analyse');
-});
-
-// 404-Handler für nicht gefundene Routen
-app.use((req, res) => {
-    res.status(404).sendFile(path.join(__dirname, '../public/index.html'));
-});
+app.use('/api', uploadRoutes);
+app.use('/api', filterRoutes);
 
 // Starten des Servers
 const PORT = process.env.PORT || 3001;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = '127.0.0.1';  // Wichtig: Nur lokale Verbindungen
 
 app.listen(PORT, HOST, () => {
-    console.log(`Backend läuft auf Port ${PORT}`);
+    console.log(`Backend läuft auf ${HOST}:${PORT}`);
 });
