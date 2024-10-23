@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const uploadMiddleware = require('../middleware/uploadMiddleware');
 
-// Route für Datei-Upload
-router.post('/upload', uploadMiddleware);
+// Route zum Hochladen von JSON-Dateien
+router.post('/upload', uploadMiddleware, (req, res) => {
+    // Die Antwort wird bereits im uploadMiddleware behandelt
+});
 
 module.exports = router;
