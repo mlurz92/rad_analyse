@@ -41,5 +41,5 @@ app.get('*', (req, res) => {
 
 // Starten des Servers
 app.listen(PORT, HOST, () => {
-    console.log(`Backend läuft auf https://raspberrypi.hyg6zkbn2mykr1go.myfritz.net:${PORT}`);
+    console.log(`Backend läuft auf Port ${PORT}`);
 });
