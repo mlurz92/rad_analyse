@@ -1,3 +1,8 @@
+// Aktualisierte API-Endpunkt-URLs mit dem Pfad /rad_analyse
+const FILTER_API_URL = '/rad_analyse/api/filter';
+const FILTER_OPTIONS_URL = '/rad_analyse/api/filters';
+const UPLOAD_API_URL = '/rad_analyse/upload';
+
 // DOM-Elemente
 const toggleUpload = document.getElementById('toggle-upload');
 const uploadSection = document.getElementById('upload');
@@ -18,7 +23,7 @@ toggleUpload.addEventListener('click', (e) => {
 // Funktion zum Abrufen der Filteroptionen von der API
 async function fetchFilterOptions() {
     try {
-        const response = await fetch('/api/filters');
+        const response = await fetch(FILTER_OPTIONS_URL);
         if (!response.ok) {
             throw new Error('Fehler beim Laden der Filteroptionen');
         }
@@ -59,7 +64,7 @@ uploadForm.addEventListener('submit', function (e) {
         // Anzeigen des Lade-Spinners
         displayLoading(true);
 
-        fetch('/upload', {
+        fetch(UPLOAD_API_URL, {
             method: 'POST',
             body: formData
         })
@@ -131,7 +136,7 @@ function applyFilters() {
     // Anzeigen des Lade-Spinners
     displayLoading(true);
 
-    fetch(`/api/filter?${queryString}`)
+    fetch(`${FILTER_API_URL}?${queryString}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Fehler beim Abrufen der Daten');
@@ -250,7 +255,7 @@ function displayLoading(isLoading) {
     }
 }
 
-// Initiales Laden der Filteroptionen beim Laden der Seite
+// Initiales Laden der Filteroptionen und Daten beim Laden der Seite
 window.addEventListener('DOMContentLoaded', (event) => {
     fetchFilterOptions();
     applyFilters(); // Initiales Laden aller Daten ohne Filter
