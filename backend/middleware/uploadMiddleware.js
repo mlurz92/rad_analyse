@@ -113,9 +113,9 @@ const uploadMiddleware = (req, res, next) => {
                 db.run('BEGIN TRANSACTION;');
                 jsonData.forEach((inv, index) => {
                     // Validierung der erforderlichen Felder
-                    if (!inv.Modalität || !inv.Studiendatum) {
+                    if (!inv.Modalitaet || !inv.Studiendatum) {
                         console.error(`Untersuchung ${index + 1} fehlt erforderliche Felder.`);
-                        // Optional: Überspringen oder Handhaben fehlender Felder
+                        // Überspringen ungültiger Einträge
                         return;
                     }
 
@@ -127,12 +127,12 @@ const uploadMiddleware = (req, res, next) => {
                     }
 
                     insertStmt.run(
-                        inv.Modalität,
+                        inv.Modalitaet,
                         parsedDate,
                         inv.Studienbeschreibung || '',
                         inv.AnfragendeAbteilung || '',
                         inv.AnfragenderArzt || '',
-                        inv.BerfundVerfasser || '',
+                        inv.BefundVerfasser || '',
                         inv.Diagnose || '',
                         inv.Untersuchungsstatus || '',
                         inv.Institution || '',
@@ -160,5 +160,6 @@ const uploadMiddleware = (req, res, next) => {
             });
         });
     });
+};
 
-    module.exports = uploadMiddleware;
+module.exports = uploadMiddleware;
