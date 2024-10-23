@@ -11,11 +11,19 @@ dotenv.config();
 const app = express();
 
 // Sicherheitsmiddleware
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "script-src": ["'self'", "'unsafe-inline'"],
+            "style-src": ["'self'", "'unsafe-inline'"],
+        },
+    },
+}));
 
 // CORS konfigurieren
 app.use(cors({
-    origin: ['https://raspberrypi.hyg6zkbn2mykr1go.myfritz.net'], // Erlaubte Domänen
+    origin: ['https://raspberrypi.hyg6zkbn2mykr1go.myfritz.net'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
 }));
@@ -23,16 +31,31 @@ app.use(cors({
 // Middleware zum Parsen von JSON-Daten
 app.use(express.json());
 
-// Nutzung von Upload- und Filter-Routen unter dem Pfad /rad_analyse
+// Statische Dateien servieren
+app.use('/rad_analyse', express.static(path.join(__dirname, '../public')));
+
+// API-Routen
 app.use('/rad_analyse', uploadRoutes);
 app.use('/rad_analyse', filterRoutes);
 
-// Servieren der statischen Frontend-Dateien
-app.use('/rad_analyse', express.static(path.join(__dirname, '../public')));
+// Root-Route für /rad_analyse
+app.get('/rad_analyse', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
-// Catch-All Route für Frontend-Routing (Single Page Application)
+// Catch-all Route für /rad_analyse/*
 app.get('/rad_analyse/*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Root-Route Umleitung
+app.get('/', (req, res) => {
+    res.redirect('/rad_analyse');
+});
+
+// 404-Handler für nicht gefundene Routen
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Starten des Servers
