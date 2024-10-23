@@ -6,7 +6,8 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const uploadDir = path.resolve(__dirname, '..', process.env.UPLOAD_DIR);
+// Upload-Verzeichnis konfigurieren
+const uploadDir = path.resolve(__dirname, '..', process.env.UPLOAD_DIR || 'json_uploads');
 
 // Sicherstellen, dass das Upload-Verzeichnis existiert
 if (!fs.existsSync(uploadDir)) {
@@ -19,76 +20,74 @@ const storage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + '.json');
     }
 });
 
-// Multer-Filter zur Einschränkung auf JSON-Dateien
+// Multer-Filter für JSON-Dateien
 const fileFilter = (req, file, cb) => {
     if (file.mimetype === 'application/json') {
         cb(null, true);
     } else {
-        cb(new Error('Nur JSON-Dateien sind erlaubt'), false);
+        cb(new Error('Nur JSON-Dateien sind erlaubt.'), false);
     }
 };
 
-// Multer-Instanz mit erhöhtem Upload-Limit
+// Multer-Upload-Konfiguration
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 10 * 1024 * 1024 } // Maximal 10MB
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10 MB Limit
+    }
 }).single('jsonFile');
 
-// Funktion zur Umwandlung des deutschen Datumsformats in ISO-Format
+// Hilfsfunktion zum Parsen des deutschen Datums
 function parseGermanDate(dateString) {
-    // Erwartetes Format: DD-MM-YYYY HH:MM:SS oder DD.MM.YYYY HH:MM:SS
-    const regex = /^(\d{2})[-.]?(\d{2})[-.]?(\d{4}) (\d{2}):(\d{2}):(\d{2})$/;
-    const match = dateString.match(regex);
-    if (!match) return null;
-    const [_, day, month, year, hour, minute, second] = match;
+    if (!dateString) return null;
+    
+    // Erwartetes Format: DD.MM.YYYY HH:mm:ss oder DD-MM-YYYY HH:mm:ss
+    const parts = dateString.match(/(\d{2})[-.\/](\d{2})[-.\/](\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
+    
+    if (!parts) return null;
+    
+    const [_, day, month, year, hour, minute, second] = parts;
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
-// Middleware-Funktion zur Handhabung des Uploads
-const uploadMiddleware = (req, res, next) => {
+// Middleware für den Upload-Prozess
+const uploadMiddleware = (req, res) => {
     upload(req, res, (err) => {
         if (err instanceof multer.MulterError) {
-            // Multer-spezifische Fehler
-            console.error('Multer Fehler:', err.message);
-            return res.status(400).json({ error: `Multer Fehler: ${err.message}` });
+            return res.status(400).json({ error: `Upload-Fehler: ${err.message}` });
         } else if (err) {
-            // Allgemeine Fehler
-            console.error('Upload Fehler:', err.message);
-            return res.status(400).json({ error: err.message });
+            return res.status(500).json({ error: err.message });
         }
 
-        // Überprüfung, ob eine Datei hochgeladen wurde
         if (!req.file) {
-            return res.status(400).json({ error: 'Keine Datei hochgeladen.' });
+            return res.status(400).json({ error: 'Keine Datei ausgewählt.' });
         }
 
-        const filePath = path.resolve(uploadDir, req.file.filename);
-
-        // Lesen und Verarbeiten der JSON-Datei
-        fs.readFile(filePath, 'utf8', (err, data) => {
+        // JSON-Datei einlesen
+        fs.readFile(req.file.path, 'utf8', (err, data) => {
             if (err) {
-                console.error('Fehler beim Lesen der Datei:', err.message);
                 return res.status(500).json({ error: 'Fehler beim Lesen der Datei.' });
             }
 
             let jsonData;
             try {
                 jsonData = JSON.parse(data);
-            } catch (parseErr) {
-                console.error('JSON-Parse Fehler:', parseErr.message);
+            } catch (err) {
                 return res.status(400).json({ error: 'Ungültiges JSON-Format.' });
             }
 
+            // Prüfen ob es ein Array ist
             if (!Array.isArray(jsonData)) {
                 return res.status(400).json({ error: 'JSON muss ein Array von Untersuchungen sein.' });
             }
 
-            // Einfügen der Daten in die Datenbank
+            // SQL-Statement vorbereiten
             const insertStmt = db.prepare(`
                 INSERT INTO investigations (
                     Modalitaet,
@@ -107,53 +106,64 @@ const uploadMiddleware = (req, res, next) => {
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
 
+            // Transaktion starten
             db.serialize(() => {
-                db.run('BEGIN TRANSACTION;');
-                jsonData.forEach((inv, index) => {
-                    // Validierung der erforderlichen Felder
-                    if (!inv.Modalitaet || !inv.Studiendatum) {
-                        console.error(`Untersuchung ${index + 1} fehlt erforderliche Felder.`);
-                        // Überspringen ungültiger Einträge
+                db.run('BEGIN TRANSACTION');
+                
+                let successCount = 0;
+                let errorCount = 0;
+
+                jsonData.forEach((item, index) => {
+                    const studiendatum = parseGermanDate(item.Studiendatum);
+                    
+                    if (!studiendatum) {
+                        errorCount++;
+                        console.error(`Ungültiges Datum in Zeile ${index + 1}`);
                         return;
                     }
 
-                    // Umwandlung des Studiendatums in ISO-Format
-                    const parsedDate = parseGermanDate(inv.Studiendatum);
-                    if (!parsedDate) {
-                        console.error(`Untersuchung ${index + 1} enthält ungültiges Studiendatum.`);
-                        return;
+                    try {
+                        insertStmt.run(
+                            item.Modalitaet || '',
+                            studiendatum,
+                            item.Studienbeschreibung || '',
+                            item.AnfragendeAbteilung || '',
+                            item.AnfragenderArzt || '',
+                            item.BefundVerfasser || '',
+                            item.Diagnose || '',
+                            item.Untersuchungsstatus || '',
+                            item.Institution || '',
+                            item.Anfragename || '',
+                            item.Patientengeschlecht || '',
+                            item.Patientenalter || '',
+                            item.Überweiser || ''
+                        );
+                        successCount++;
+                    } catch (err) {
+                        errorCount++;
+                        console.error(`Fehler beim Einfügen von Zeile ${index + 1}:`, err);
                     }
-
-                    insertStmt.run(
-                        inv.Modalitaet,
-                        parsedDate,
-                        inv.Studienbeschreibung || '',
-                        inv.AnfragendeAbteilung || '',
-                        inv.AnfragenderArzt || '',
-                        inv.BefundVerfasser || '',
-                        inv.Diagnose || '',
-                        inv.Untersuchungsstatus || '',
-                        inv.Institution || '',
-                        inv.Anfragename || '',
-                        inv.Patientengeschlecht || '',
-                        inv.Patientenalter || '',
-                        inv.Überweiser || '',
-                        (err) => {
-                            if (err) {
-                                console.error('Fehler beim Einfügen der Untersuchung:', err.message);
-                            }
-                        }
-                    );
                 });
-                db.run('COMMIT;', (err) => {
+
+                db.run('COMMIT', (err) => {
+                    insertStmt.finalize();
+                    
                     if (err) {
-                        console.error('Fehler beim Commit der Transaktion:', err.message);
-                        return res.status(500).json({ error: 'Fehler beim Speichern der Daten in der Datenbank.' });
-                    } else {
-                        console.log('Alle Untersuchungen wurden erfolgreich importiert.');
-                        insertStmt.finalize();
-                        return res.status(200).json({ message: 'Datei erfolgreich hochgeladen und Daten importiert.' });
+                        console.error('Transaktionsfehler:', err);
+                        return res.status(500).json({ 
+                            error: 'Fehler beim Speichern der Daten.' 
+                        });
                     }
+
+                    // Erfolgsmeldung
+                    res.status(200).json({
+                        message: `Import abgeschlossen. ${successCount} Datensätze erfolgreich importiert, ${errorCount} Fehler.`
+                    });
+
+                    // Aufräumen: Upload-Datei löschen
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) console.error('Fehler beim Löschen der Upload-Datei:', err);
+                    });
                 });
             });
         });
