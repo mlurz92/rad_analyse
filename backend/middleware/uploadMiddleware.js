@@ -2,9 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const db = require('../models/db');
-
-// Laden der Umgebungsvariablen
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 const uploadDir = path.resolve(__dirname, '..', process.env.UPLOAD_DIR);
@@ -20,7 +19,6 @@ const storage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        // Beibehaltung des Originaldateinamens
         cb(null, file.originalname);
     }
 });
@@ -34,11 +32,11 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Multer-Instanz
+// Multer-Instanz mit erhöhtem Upload-Limit
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // Maximal 5MB
+    limits: { fileSize: 10 * 1024 * 1024 } // Maximal 10MB
 }).single('jsonFile');
 
 // Funktion zur Umwandlung des deutschen Datumsformats in ISO-Format
@@ -51,7 +49,7 @@ function parseGermanDate(dateString) {
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
-// Middleware-Funktion
+// Middleware-Funktion zur Handhabung des Uploads
 const uploadMiddleware = (req, res, next) => {
     upload(req, res, (err) => {
         if (err instanceof multer.MulterError) {
