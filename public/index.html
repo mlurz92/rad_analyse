@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAD Analyse Tool</title>
     <link rel="stylesheet" href="/rad_analyse/styles.css">
+    <link rel="icon" href="/rad_analyse/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <header>
@@ -20,43 +21,51 @@
     </header>
 
     <main>
-        <section id="upload" class="section hidden">
-            <h2>JSON-Datei hochladen</h2>
-            <form id="upload-form">
+        <section id="upload" class="section hidden" aria-labelledby="upload-heading">
+            <h2 id="upload-heading">JSON-Datei hochladen</h2>
+            <form id="upload-form" aria-describedby="upload-description">
                 <div class="form-group">
                     <label for="jsonFile">Wählen Sie eine JSON-Datei:</label>
-                    <input type="file" id="jsonFile" name="jsonFile" accept=".json" required>
+                    <input type="file" id="jsonFile" name="jsonFile" accept=".json" required aria-required="true">
                 </div>
                 <button type="submit">Hochladen</button>
             </form>
-            <div id="upload-result" aria-live="polite"></div>
+            <div id="upload-result" aria-live="polite" role="status" aria-atomic="true"></div>
         </section>
 
-        <section id="filter" class="section">
-            <h2>Daten filtern</h2>
-            <form id="filter-form">
+        <section id="filter" class="section" aria-labelledby="filter-heading">
+            <h2 id="filter-heading">Daten filtern</h2>
+            <form id="filter-form" aria-describedby="filter-description">
                 <div class="filter-group">
                     <label for="modalitaet-select">Modalität:</label>
-                    <input type="text" id="modalitaet-input" placeholder="Suchen...">
-                    <select id="modalitaet-select" name="Modalitaet" multiple></select>
+                    <input type="text" id="modalitaet-input" placeholder="Suchen..." aria-label="Modalität suchen">
+                    <select id="modalitaet-select" name="Modalitaet" multiple aria-label="Modalität auswählen">
+                        <!-- Optionen werden dynamisch geladen -->
+                    </select>
                 </div>
 
                 <div class="filter-group">
                     <label for="abteilung-select">Anfragende Abteilung:</label>
-                    <input type="text" id="abteilung-input" placeholder="Suchen...">
-                    <select id="abteilung-select" name="AnfragendeAbteilung" multiple></select>
+                    <input type="text" id="abteilung-input" placeholder="Suchen..." aria-label="Anfragende Abteilung suchen">
+                    <select id="abteilung-select" name="AnfragendeAbteilung" multiple aria-label="Anfragende Abteilung auswählen">
+                        <!-- Optionen werden dynamisch geladen -->
+                    </select>
                 </div>
 
                 <div class="filter-group">
                     <label for="diagnose-select">Diagnose:</label>
-                    <input type="text" id="diagnose-input" placeholder="Suchen...">
-                    <select id="diagnose-select" name="Diagnose" multiple></select>
+                    <input type="text" id="diagnose-input" placeholder="Suchen..." aria-label="Diagnose suchen">
+                    <select id="diagnose-select" name="Diagnose" multiple aria-label="Diagnose auswählen">
+                        <!-- Optionen werden dynamisch geladen -->
+                    </select>
                 </div>
 
                 <div class="filter-group">
                     <label for="status-select">Untersuchungsstatus:</label>
-                    <input type="text" id="status-input" placeholder="Suchen...">
-                    <select id="status-select" name="Untersuchungsstatus" multiple></select>
+                    <input type="text" id="status-input" placeholder="Suchen..." aria-label="Untersuchungsstatus suchen">
+                    <select id="status-select" name="Untersuchungsstatus" multiple aria-label="Untersuchungsstatus auswählen">
+                        <!-- Optionen werden dynamisch geladen -->
+                    </select>
                 </div>
 
                 <div class="form-actions">
@@ -66,18 +75,18 @@
             </form>
         </section>
 
-        <section id="statistik" class="section">
-            <h2>Statistik</h2>
+        <section id="statistik" class="section" aria-labelledby="statistik-heading">
+            <h2 id="statistik-heading">Statistik</h2>
             <div id="statistik-container">
-                <div id="loading-spinner" class="statistik-item loading">
-                    <div class="spinner"></div>
+                <div id="loading-spinner" class="statistik-item loading" aria-live="assertive">
+                    <div class="spinner" role="status" aria-label="Lädt"></div>
                     <p>Statistiken werden geladen...</p>
                 </div>
             </div>
         </section>
 
-        <section id="about" class="section">
-            <h2>Über RAD Analyse Tool</h2>
+        <section id="about" class="section" aria-labelledby="about-heading">
+            <h2 id="about-heading">Über RAD Analyse Tool</h2>
             <p>Das RAD Analyse Tool ist ein professionelles Werkzeug zur Analyse radiologischer Untersuchungsdaten. 
             Es ermöglicht das Hochladen von JSON-Dateien, das Filtern der Daten nach verschiedenen Kriterien 
             und die Anzeige umfassender Statistiken.</p>
