@@ -17,19 +17,19 @@ const db = new sqlite3.Database(dbPath, (err) => {
 const createTableQuery = `
     CREATE TABLE IF NOT EXISTS investigations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        Modalitaet TEXT,
-        Studiendatum TEXT,
-        Studienbeschreibung TEXT,
-        Anfragename TEXT,
-        Institution TEXT,
-        AnfragendeAbteilung TEXT,
-        AnfragenderArzt TEXT,
-        Überweiser TEXT,
-        BefundVerfasser TEXT,
-        Patientengeschlecht TEXT,
-        Patientenalter TEXT,
-        Diagnose TEXT,
-        Untersuchungsstatus TEXT
+        "Modalität" TEXT,
+        "Studiendatum" TEXT,
+        "Studienbeschreibung" TEXT,
+        "Anfragename" TEXT,
+        "Institution" TEXT,
+        "Anfragende Abteilung" TEXT,
+        "Anfragender Arzt" TEXT,
+        "Überweiser" TEXT,
+        "Berfundverfasser" TEXT,
+        "Patientengeschlecht" TEXT,
+        "Patientenalter" TEXT,
+        "Diagnose" TEXT,
+        "Untersuchungsstatus" TEXT
     )
 `;
 
@@ -38,6 +38,21 @@ db.run(createTableQuery, (err) => {
         console.error('Fehler beim Erstellen der Tabelle:', err.message);
     } else {
         console.log('Tabelle investigations ist bereit.');
+    }
+});
+
+// Hinzufügen von Indizes für häufig abgefragte Felder
+const createIndicesQuery = `
+    CREATE INDEX IF NOT EXISTS idx_modalitaet ON investigations ("Modalität");
+    CREATE INDEX IF NOT EXISTS idx_anfragender_arzt ON investigations ("Anfragender Arzt");
+    CREATE INDEX IF NOT EXISTS idx_untersuchungsstatus ON investigations ("Untersuchungsstatus");
+`;
+
+db.exec(createIndicesQuery, (err) => {
+    if (err) {
+        console.error('Fehler beim Erstellen der Indizes:', err.message);
+    } else {
+        console.log('Indizes wurden erfolgreich erstellt.');
     }
 });
 
