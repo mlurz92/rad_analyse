@@ -69,15 +69,15 @@ uploadForm.addEventListener('submit', function (e) {
             body: formData
         })
             .then(async response => {
-                const text = await response.text();
+                const json = await response.json();
                 if (!response.ok) {
-                    throw new Error(text || 'Fehler beim Hochladen der Datei.');
+                    throw new Error(json.error || 'Fehler beim Hochladen der Datei.');
                 }
-                return text;
+                return json;
             })
             .then(data => {
                 uploadResult.style.color = '#03dac6'; // Erfolgsfarbe
-                uploadResult.innerText = data;
+                uploadResult.innerText = data.message || 'Datei erfolgreich hochgeladen.';
                 uploadForm.reset();
                 applyFilters(); // Nach dem Upload automatisch filtern
             })
@@ -159,7 +159,7 @@ function applyFilters() {
 function displayStatistics(data) {
     statistikContainer.innerHTML = '';
 
-    if (data.length === 0) {
+    if (!Array.isArray(data) || data.length === 0) {
         const noData = document.createElement('div');
         noData.classList.add('statistik-item');
         noData.innerHTML = `<h3>Keine Untersuchungen gefunden.</h3>`;
@@ -177,13 +177,14 @@ function displayStatistics(data) {
     // Funktion zur Gruppierung nach Feld
     function groupBy(array, key) {
         return array.reduce((result, item) => {
-            (result[item[key]] = result[item[key]] || []).push(item);
+            const fieldValue = item[key] || 'Unbekannt';
+            (result[fieldValue] = result[fieldValue] || []).push(item);
             return result;
         }, {});
     }
 
     // Gruppieren nach Modalität
-    const modalitaetGroups = groupBy(data, 'Modalitaet');
+    const modalitaetGroups = groupBy(data, 'Modalitatiet');
     const modalitaetElement = document.createElement('div');
     modalitaetElement.classList.add('statistik-item');
     modalitaetElement.innerHTML = `<h3>Untersuchungen nach Modalität:</h3>`;
