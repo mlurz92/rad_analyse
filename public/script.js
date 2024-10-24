@@ -184,7 +184,7 @@ function displayStatistics(data) {
     }
 
     // Gruppieren nach Modalität
-    const modalitaetGroups = groupBy(data, 'Modalitatiet');
+    const modalitaetGroups = groupBy(data, 'Modalität');
     const modalitaetElement = document.createElement('div');
     modalitaetElement.classList.add('statistik-item');
     modalitaetElement.innerHTML = `<h3>Untersuchungen nach Modalität:</h3>`;
@@ -198,7 +198,7 @@ function displayStatistics(data) {
     statistikContainer.appendChild(modalitaetElement);
 
     // Gruppieren nach Anfragendem Arzt
-    const arztGroups = groupBy(data, 'AnfragenderArzt');
+    const arztGroups = groupBy(data, 'Anfragender Arzt');
     const arztElement = document.createElement('div');
     arztElement.classList.add('statistik-item');
     arztElement.innerHTML = `<h3>Untersuchungen nach Anfragendem Arzt:</h3>`;
