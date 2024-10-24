@@ -210,7 +210,6 @@ button:active {
     text-align: center;
 }
 
-/* Fehleranzeige */
 #upload-result.error {
     color: #cf6679;
 }
@@ -348,4 +347,4 @@ footer {
 
 .select-option input {
     margin-right: 10px;
-}
+} 
