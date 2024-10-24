@@ -25,7 +25,7 @@ const createTableQuery = `
         "Anfragende Abteilung" TEXT,
         "Anfragender Arzt" TEXT,
         Überweiser TEXT,
-        Berfundverfasser TEXT,
+        BefundVerfasser TEXT,
         Patientengeschlecht TEXT,
         Patientenalter TEXT,
         Diagnose TEXT,
