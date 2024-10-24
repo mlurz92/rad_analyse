@@ -22,3 +22,9 @@ Thumbs.db
 .idea/
 *.sublime-project
 *.sublime-workspace
+
+# PM2 logs
+.pm2/
+
+# Temporary files
+tmp/
