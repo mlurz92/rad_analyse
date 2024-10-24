@@ -17,13 +17,13 @@ const db = new sqlite3.Database(dbPath, (err) => {
 const createTableQuery = `
     CREATE TABLE IF NOT EXISTS investigations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        Modalität TEXT,
+        Modalitaet TEXT,
         Studiendatum TEXT,
         Studienbeschreibung TEXT,
         Anfragename TEXT,
         Institution TEXT,
-        "Anfragende Abteilung" TEXT,
-        "Anfragender Arzt" TEXT,
+        AnfragendeAbteilung TEXT,
+        AnfragenderArzt TEXT,
         Überweiser TEXT,
         BefundVerfasser TEXT,
         Patientengeschlecht TEXT,
