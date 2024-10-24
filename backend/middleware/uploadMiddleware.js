@@ -34,12 +34,12 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Multer-Upload-Konfiguration
+// Multer-Upload-Konfiguration mit 20 MB Limit
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 10 * 1024 * 1024 // 10 MB Limit
+        fileSize: 20 * 1024 * 1024 // 20 MB Limit
     }
 }).single('jsonFile');
 
@@ -90,19 +90,19 @@ const uploadMiddleware = (req, res) => {
             // SQL-Statement vorbereiten
             const insertStmt = db.prepare(`
                 INSERT INTO investigations (
-                    Modalitaet,
-                    Studiendatum,
-                    Studienbeschreibung,
-                    Anfragename,
-                    Institution,
-                    AnfragendeAbteilung,
-                    AnfragenderArzt,
-                    Überweiser,
-                    BefundVerfasser,
-                    Patientengeschlecht,
-                    Patientenalter,
-                    Diagnose,
-                    Untersuchungsstatus
+                    "Modalität",
+                    "Studiendatum",
+                    "Studienbeschreibung",
+                    "Anfragename",
+                    "Institution",
+                    "Anfragende Abteilung",
+                    "Anfragender Arzt",
+                    "Überweiser",
+                    "Berfundverfasser",
+                    "Patientengeschlecht",
+                    "Patientenalter",
+                    "Diagnose",
+                    "Untersuchungsstatus"
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
 
@@ -114,7 +114,7 @@ const uploadMiddleware = (req, res) => {
                 let errorCount = 0;
 
                 jsonData.forEach((item, index) => {
-                    const studiendatum = parseGermanDate(item.Studiendatum);
+                    const studiendatum = parseGermanDate(item["Studiendatum"]);
 
                     if (!studiendatum) {
                         errorCount++;
@@ -123,7 +123,15 @@ const uploadMiddleware = (req, res) => {
                     }
 
                     // Validierung der notwendigen Felder
-                    const requiredFields = ['Modalität', 'Studiendatum', 'Anfragename', 'Institution', 'Patientengeschlecht', 'Patientenalter', 'Untersuchungsstatus'];
+                    const requiredFields = [
+                        "Modalität",
+                        "Studiendatum",
+                        "Anfragename",
+                        "Institution",
+                        "Patientengeschlecht",
+                        "Patientenalter",
+                        "Untersuchungsstatus"
+                    ];
                     const missingFields = requiredFields.filter(field => !item[field]);
 
                     if (missingFields.length > 0) {
@@ -134,19 +142,19 @@ const uploadMiddleware = (req, res) => {
 
                     try {
                         insertStmt.run(
-                            item.Modalität || '',
+                            item["Modalität"] || '',
                             studiendatum,
-                            item.Studienbeschreibung || '',
-                            item.Anfragename || '',
-                            item.Institution || '',
-                            item['Anfragende Abteilung'] || '',
-                            item['Anfragender Arzt'] || '',
-                            item.Überweiser || '',
-                            item.Berfundverfasser || '',
-                            item.Patientengeschlecht || '',
-                            item.Patientenalter || '',
-                            item.Diagnose || '',
-                            item.Untersuchungsstatus || ''
+                            item["Studienbeschreibung"] || '',
+                            item["Anfragename"] || '',
+                            item["Institution"] || '',
+                            item["Anfragende Abteilung"] || '',
+                            item["Anfragender Arzt"] || '',
+                            item["Überweiser"] || '',
+                            item["Berfundverfasser"] || '',
+                            item["Patientengeschlecht"] || '',
+                            item["Patientenalter"] || '',
+                            item["Diagnose"] || '',
+                            item["Untersuchungsstatus"] || ''
                         );
                         successCount++;
                     } catch (err) {
@@ -177,7 +185,7 @@ const uploadMiddleware = (req, res) => {
                 });
             });
         });
-    });
-};
+    };
 
-module.exports = uploadMiddleware;
+    module.exports = uploadMiddleware;
+};
