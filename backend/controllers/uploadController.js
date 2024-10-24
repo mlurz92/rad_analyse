@@ -1,13 +1,12 @@
-// Diese Datei ist aktuell leer, da die Upload-Logik bereits im Middleware behandelt wird.
-// Falls Sie weitere Controller-Funktionen hinzufügen möchten, können Sie dies hier tun.
+// rad_analyse\backend\controllers\uploadController.js
 
-const uploadController = {
-    // Beispiel einer zusätzlichen Funktion nach dem Upload
-    // Diese Funktion könnte z.B. Benachrichtigungen senden oder weitere Datenverarbeitungen durchführen
-    postUpload: (req, res) => {
-        // Implementieren Sie zusätzliche Logik hier
-        res.status(200).json({ message: 'Upload erfolgreich verarbeitet.' });
-    }
+const db = require('../models/db');
+
+// Controller-Funktion zum Verarbeiten von Uploads (falls erforderlich)
+const processUpload = (req, res) => {
+    // Da die Upload-Logik bereits in der Middleware enthalten ist,
+    // können hier zusätzliche Schritte implementiert werden.
+    res.status(200).json({ message: 'Upload erfolgreich verarbeitet.' });
 };
 
-module.exports = uploadController;
+module.exports = { processUpload };
