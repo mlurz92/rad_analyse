@@ -35,7 +35,7 @@ const filterInvestigations = (req, res) => {
 // Controller-Funktion für das Abrufen der eindeutigen Filterwerte
 const getFilterOptions = (req, res) => {
     const fields = [
-        'Modalitaet',
+        'Modalität',
         'AnfragendeAbteilung',
         'Diagnose',
         'Untersuchungsstatus',
@@ -48,7 +48,7 @@ const getFilterOptions = (req, res) => {
 
     const distinctPromises = fields.map(field => {
         return new Promise((resolve, reject) => {
-            const query = `SELECT DISTINCT ${field} FROM investigations WHERE ${field} IS NOT NULL AND ${field} != '' ORDER BY ${field} ASC`;
+            const query = `SELECT DISTINCT ${field} FROM investigations WHERE ${field} IS NOT NULL AND TRIM(${field}) != '' ORDER BY ${field} ASC`;
             db.all(query, [], (err, rows) => {
                 if (err) {
                     reject(err);
