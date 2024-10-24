@@ -10,13 +10,13 @@ const filterInvestigations = (req, res) => {
         query += ' WHERE ';
         const conditions = [];
         for (const [key, value] of Object.entries(filterCriteria)) {
-            // Mehrfachauswahl für Modalitaet, AnfragendeAbteilung etc. unterstützt
+            // Mehrfachauswahl für Modalität, Anfragende Abteilung etc. unterstützt
             if (Array.isArray(value)) {
                 const placeholders = value.map(() => '?').join(', ');
-                conditions.push(`${key} IN (${placeholders})`);
+                conditions.push(`"${key}" IN (${placeholders})`);
                 params.push(...value);
             } else {
-                conditions.push(`${key} LIKE ?`);
+                conditions.push(`"${key}" LIKE ?`);
                 params.push(`%${value}%`);
             }
         }
@@ -36,7 +36,7 @@ const filterInvestigations = (req, res) => {
 const getFilterOptions = (req, res) => {
     const fields = [
         'Modalität',
-        'AnfragendeAbteilung',
+        'Anfragende Abteilung',
         'Diagnose',
         'Untersuchungsstatus',
         'Institution',
@@ -48,7 +48,7 @@ const getFilterOptions = (req, res) => {
 
     const distinctPromises = fields.map(field => {
         return new Promise((resolve, reject) => {
-            const query = `SELECT DISTINCT ${field} FROM investigations WHERE ${field} IS NOT NULL AND TRIM(${field}) != '' ORDER BY ${field} ASC`;
+            const query = `SELECT DISTINCT "${field}" FROM investigations WHERE "${field}" IS NOT NULL AND TRIM("${field}") != '' ORDER BY "${field}" ASC`;
             db.all(query, [], (err, rows) => {
                 if (err) {
                     reject(err);
