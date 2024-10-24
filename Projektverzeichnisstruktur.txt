@@ -1,4 +1,4 @@
-rad_analyse/
+srv/rad_analyse/
 ├── public/
 │   ├── index.html
 │   ├── styles.css
@@ -26,4 +26,4 @@ rad_analyse/
 ├── node_modules/  (wird durch npm install generiert)
 ├── rad_analyse.db  (wird automatisch erstellt)
 ├── LICENSE
-└── README.md
+└── README.md 
