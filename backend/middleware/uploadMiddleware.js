@@ -46,12 +46,12 @@ const upload = multer({
 // Hilfsfunktion zum Parsen des deutschen Datums
 function parseGermanDate(dateString) {
     if (!dateString) return null;
-    
+
     // Erwartetes Format: DD.MM.YYYY HH:mm:ss oder DD-MM-YYYY HH:mm:ss
     const parts = dateString.match(/(\d{2})[-.\/](\d{2})[-.\/](\d{4})\s+(\d{2}):(\d{2}):(\d{2})/);
-    
+
     if (!parts) return null;
-    
+
     const [_, day, month, year, hour, minute, second] = parts;
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
@@ -62,7 +62,7 @@ const uploadMiddleware = (req, res) => {
         if (err instanceof multer.MulterError) {
             return res.status(400).json({ error: `Upload-Fehler: ${err.message}` });
         } else if (err) {
-            return res.status(500).json({ error: err.message });
+            return res.status(400).json({ error: err.message });
         }
 
         if (!req.file) {
@@ -93,50 +93,60 @@ const uploadMiddleware = (req, res) => {
                     Modalitaet,
                     Studiendatum,
                     Studienbeschreibung,
+                    Anfragename,
+                    Institution,
                     AnfragendeAbteilung,
                     AnfragenderArzt,
+                    Überweiser,
                     BefundVerfasser,
-                    Diagnose,
-                    Untersuchungsstatus,
-                    Institution,
-                    Anfragename,
                     Patientengeschlecht,
                     Patientenalter,
-                    Überweiser
+                    Diagnose,
+                    Untersuchungsstatus
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `);
 
             // Transaktion starten
             db.serialize(() => {
                 db.run('BEGIN TRANSACTION');
-                
+
                 let successCount = 0;
                 let errorCount = 0;
 
                 jsonData.forEach((item, index) => {
                     const studiendatum = parseGermanDate(item.Studiendatum);
-                    
+
                     if (!studiendatum) {
                         errorCount++;
                         console.error(`Ungültiges Datum in Zeile ${index + 1}`);
                         return;
                     }
 
+                    // Validierung der notwendigen Felder
+                    const requiredFields = ['Modalität', 'Studiendatum', 'Anfragename', 'Institution', 'Patientengeschlecht', 'Patientenalter', 'Untersuchungsstatus'];
+                    const missingFields = requiredFields.filter(field => !item[field]);
+
+                    if (missingFields.length > 0) {
+                        errorCount++;
+                        console.error(`Fehlende Felder in Zeile ${index + 1}: ${missingFields.join(', ')}`);
+                        return;
+                    }
+
                     try {
                         insertStmt.run(
-                            item.Modalitaet || '',
+                            item.Modalität || '',
                             studiendatum,
                             item.Studienbeschreibung || '',
-                            item.AnfragendeAbteilung || '',
-                            item.AnfragenderArzt || '',
-                            item.BefundVerfasser || '',
-                            item.Diagnose || '',
-                            item.Untersuchungsstatus || '',
-                            item.Institution || '',
                             item.Anfragename || '',
+                            item.Institution || '',
+                            item['Anfragende Abteilung'] || '',
+                            item['Anfragender Arzt'] || '',
+                            item.Überweiser || '',
+                            item.Berfundverfasser || '',
                             item.Patientengeschlecht || '',
                             item.Patientenalter || '',
-                            item.Überweiser || ''
+                            item.Diagnose || '',
+                            item.Untersuchungsstatus || ''
                         );
                         successCount++;
                     } catch (err) {
@@ -147,7 +157,7 @@ const uploadMiddleware = (req, res) => {
 
                 db.run('COMMIT', (err) => {
                     insertStmt.finalize();
-                    
+
                     if (err) {
                         console.error('Transaktionsfehler:', err);
                         return res.status(500).json({ 
